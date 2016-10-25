@@ -1,0 +1,36 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Automatisk genererte oppgaver</title>
+    <link rel="stylesheet" href="stil.css">
+    <script type="text/javascript" async
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+</head>
+<body>
+    <form id=settings class=flex-container>
+        <div>
+            <label for=rows>Rekker</label>
+            <label for=cols>Kolonner</label>
+            <label for=padding>Padding</label>
+            <label for=border>Kantlinje</label>
+        </div>
+        <div>
+            <input name=rows id=rows type=number min=0 max=100 value=10>
+            <input name=cols id=cols type=number min=0 max=100 value=10>
+            <input name=padding id=padding type=number min=0 max=100 value=10>
+            <input name=border id=border type=checkbox checked>
+        </div>
+        <div>
+            <label for=formula>Formel</label>
+        </div>
+        <div>
+            <input name=formula id=formula type=text value="x + y / z^2">
+        </div>
+        <div id=symbols></div>
+        <div id=symbol-inputs></div>
+    </form>
+    <table id="out"></table>
+    <script src="oppgaver.js"></script>
+</body>
+</html>
