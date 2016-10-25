@@ -10,25 +10,30 @@
 <body>
     <form id=settings class=flex-container>
         <div>
-            <label for=rows>Rekker</label>
-            <label for=cols>Kolonner</label>
-            <label for=padding>Rutestørrelse</label>
-            <label for=border>Kantlinje</label>
+            <div class=input-group>
+                <label for=padding>Rutestørrelse</label>
+                <input name=padding id=padding type=number min=0 max=100 value=10>
+            </div>
+            <div class=input-group>
+                <label for=rows>Rekker</label>
+                <input name=rows id=rows type=number min=0 max=100 value=10>
+            </div>
+            <div class=input-group>
+                <label for=cols>Kolonner</label>
+                <input name=cols id=cols type=number min=0 max=100 value=10>
+            </div>
+            <div class=input-group>
+                <label for=border>Kantlinje</label>
+                <input name=border id=border type=checkbox checked>
+            </div>
         </div>
         <div>
-            <input name=rows id=rows type=number min=0 max=100 value=10>
-            <input name=cols id=cols type=number min=0 max=100 value=10>
-            <input name=padding id=padding type=number min=0 max=100 value=10>
-            <input name=border id=border type=checkbox checked>
-        </div>
-        <div>
-            <label for=formula>Formel</label>
-        </div>
-        <div>
-            <input name=formula id=formula type=text value="x + y / z^2">
+            <div class=input-group>
+                <label for=formula>Formel</label>
+                <input name=formula id=formula type=text value="x + y / z^2">
+            </div>
         </div>
         <div id=symbols></div>
-        <div id=symbol-inputs></div>
     </form>
     <table id="out"></table>
     <script src="oppgaver.js"></script>

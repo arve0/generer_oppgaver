@@ -4,7 +4,6 @@ table, td, th {
 td, th {
     border-width: 1px;
     border-style: solid;
-    font-size: 20px;
 }
 .second {
     padding-left: 60px;
@@ -12,16 +11,22 @@ td, th {
 .flex-container {
     display: flex;
 }
-label, input {
-    display: block;
-    margin-bottom: 10px;
-}
-label {
+.input-group {
     margin-right: 5px;
-    font-weight: bold;
+    margin-bottom: 5px;
+    padding: 5px;
+    background-color: #e0e0f0;
 }
-input {
-    margin-right: 15px;
+.input-group label {
+    font-size: 14px;
+    display: block;
+}
+.input-group input {
+    border: none;
+    padding: 5px;
+    font-size: 18px;
+    height: 40px;
+    width: 100%;
 }
 
 @media print {

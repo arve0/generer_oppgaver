@@ -1,10 +1,24 @@
 var settings = document.getElementById('settings');
 
 var defaultNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-var state = {
-    inputs: {},
-    symbols: {}
-};
+
+var state = getState();
+
+function storeState (state) {
+  localStorage.setItem('state', JSON.stringify(state));
+}
+
+function getState () {
+  var stateStr = localStorage.getItem('state');
+  var storedState;
+  try {
+    storedState = JSON.parse(stateStr);
+  } catch (err) {}
+  if (storedState) {
+      settings.formula.value = storedState.inputs.formula;
+  }
+  return storedState || {};
+}
 
 update();
 
@@ -25,6 +39,7 @@ function update (event) {
     }
 
     render(opts);
+    storeState(state);
 };
 
 function updateInputState (form) {
@@ -37,26 +52,30 @@ function updateInputState (form) {
 }
 
 function updateSymbolState (symbols) {
+    state.symbols = state.symbols || {};
     for (var i = 0; i < symbols.length; i += 1) {
         var symbol = symbols[i];
-        var input = state.inputs['symbol-' + symbol] || state.symbols[symbol] || defaultNumbers;
+        // input if defined, or last state, or default
+        var input = (state.inputs['symbol-' + symbol] !== undefined) ?
+                        state.inputs['symbol-' + symbol] : 
+                        state.symbols[symbol] || defaultNumbers;
         state.symbols[symbol] = splitAndTrim('' + input);
     }
 }
 
 function updateSymbolForm (symbols) {
-    var labels = '';
-    var inputs = '';
+    var html = '';
 
     for (var i = 0; i < symbols.length; i++) {
         var symbol = symbols[i];
-        var values = '' + state.symbols[symbol];
-        labels += `<label for=symbol-${symbol}>${symbol}</label>`;
-        inputs += `<input name=symbol-${symbol} id=symbol-${symbol} type=text value="${values}">`;
+        var values = state.symbols[symbol] || '';
+        html += '<div class=input-group>';
+        html += `<label for=symbol-${symbol}>${symbol}</label>`;
+        html += `<input name=symbol-${symbol} id=symbol-${symbol} type=text value="${values}">`;
+        html += '</div>';
     }
 
-    document.getElementById('symbols').innerHTML = labels;
-    document.getElementById('symbol-inputs').innerHTML = inputs;
+    document.getElementById('symbols').innerHTML = html;
 }
 
 function render (opts) {
@@ -88,16 +107,23 @@ function render (opts) {
  * gives '2+5', where 2 and 5 is picked at random
  */
 function fillQuestion (question, numbers) {
+    var randomNumbers = {};
     var out = '';
     for (var i = 0; i < question.length; i += 1) {
         var char_ = question[i];
-        if (Array.isArray(numbers[char_])) {
-            out += pick(numbers[char_]);
+
+        if (Array.isArray(numbers[char_]) && numbers[char_].length &&
+            !randomNumbers.hasOwnProperty(char_)) {
+            randomNumbers[char_] = pick(numbers[char_]);
+        }
+
+        if (randomNumbers.hasOwnProperty(char_)) {
+            out += randomNumbers[char_];
         } else {
             out += char_;
         }
     }
-    return '`' + out + '`';
+    return '`' + out + '`';  // ascii math
 }
 
 function pick (arr) {
