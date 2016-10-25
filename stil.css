@@ -4,9 +4,6 @@ table, td, th {
 td, th {
     border-width: 1px;
     border-style: solid;
-    padding-left: 16px;
-    padding-right: 16px;
-    padding-bottom: 10px;
     font-size: 20px;
 }
 .second {

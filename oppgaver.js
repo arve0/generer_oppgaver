@@ -1,45 +1,85 @@
 var settings = document.getElementById('settings');
 
-var state = {};
+var defaultNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+var state = {
+    inputs: {},
+    symbols: {}
+};
 
-render(getOptions());
+update();
 
-settings.onchange = function (event) {
+settings.onkeyup = update;
+settings.onchange = update;
+
+function update (event) {
     var opts = getOptions();
+
+    updateInputState(settings);
+
     var symbols = getSymbols(opts.formula);
-    if (!arraySimilar(symbols, state.symbols)) {
-        // symbolFormUpdate(symbols);
+    updateSymbolState(symbols);
+
+    if (!arraySimilar(symbols, getCurrentInputSymbols(settings))) {
+        // need to add/remove input-field for symbol
+        updateSymbolForm(symbols);
     }
 
     render(opts);
 };
 
+function updateInputState (form) {
+    state.inputs = {};
+    var inputs = form.getElementsByTagName('input');
+    for (var i = 0; i < inputs.length; i += 1) {
+        var input = inputs[i];
+        state.inputs[input.name] = input.value;
+    }
+}
+
+function updateSymbolState (symbols) {
+    for (var i = 0; i < symbols.length; i += 1) {
+        var symbol = symbols[i];
+        var input = state.inputs['symbol-' + symbol] || state.symbols[symbol] || defaultNumbers;
+        state.symbols[symbol] = splitAndTrim('' + input);
+    }
+}
+
+function updateSymbolForm (symbols) {
+    var labels = '';
+    var inputs = '';
+
+    for (var i = 0; i < symbols.length; i++) {
+        var symbol = symbols[i];
+        var values = '' + state.symbols[symbol];
+        labels += `<label for=symbol-${symbol}>${symbol}</label>`;
+        inputs += `<input name=symbol-${symbol} id=symbol-${symbol} type=text value="${values}">`;
+    }
+
+    document.getElementById('symbols').innerHTML = labels;
+    document.getElementById('symbol-inputs').innerHTML = inputs;
+}
+
 function render (opts) {
     var out = document.getElementById('out');
+
     var rows = '';
     for (var i = 0; i < opts.rows; i += 1) {
         rows += '<tr>';
         for (var j = 0; j < opts.cols; j += 1) {
             rows += '<td>';
-            rows += '<small>Hvem er størst?</small><br>';
-            rows += '<span>';
-            rows += fillQuestion('a/b', {
-                a: [1, 2, 3, 4, 5],
-                b: [1, 2, 3, 4, 5, 10]
-            });
-            rows += '</span>';
-            rows += '<span class="second">';
-            rows += fillQuestion('a/b', {
-                a: [1, 2, 3, 4, 5],
-                b: [1, 2, 3, 4, 5, 10]
-            });
-            rows += '</span>';
+            rows += fillQuestion(opts.formula, state.symbols);
             rows += '</td>';
         }
         rows += '</tr>';
     }
 
     out.innerHTML = rows;
+    byTagName(out, 'td').map((el) => {
+        el.style.border = opts.border ? '' : 'none';
+        el.style.padding = opts.padding;
+    });
+
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
 }
 
 
@@ -52,7 +92,7 @@ function fillQuestion (question, numbers) {
     for (var i = 0; i < question.length; i += 1) {
         var char_ = question[i];
         if (Array.isArray(numbers[char_])) {
-            out += pick(numbers[char_]); 
+            out += pick(numbers[char_]);
         } else {
             out += char_;
         }
@@ -70,6 +110,9 @@ function pick (arr) {
 function getSymbols (str) {
     var r = /[a-zA-Z]/g
     var symbols = str.match(r);
+    if (symbols === null) {
+        return [];
+    }
     var uniq = [];
     for (var i = 0; i < symbols.length; i += 1) {
         if (uniq.indexOf(symbols[i]) === -1) {
@@ -108,4 +151,33 @@ function arraySimilar (a, b) {
         }
     }
     return true;
+}
+
+
+/**
+ * splitAndTrim('1 2 3,4,5, 6 ,7;8 1.01') => [1, 2, 3, 4, 5, 6, 7, 8, 1.01]
+ */
+function splitAndTrim (str) {
+    if (typeof str !== 'string') {
+        return [];
+    }
+    var delimiters = /[ ,;]/;
+    return str.split(delimiters).map(n => parseFloat(n)).filter(isFinite);
+}
+
+function getCurrentInputSymbols (form) {
+    var inputs = form.getElementsByTagName('input');
+    var symbols = [];
+    for (var i = 0; i < inputs.length; i += 1) {
+        var input = inputs[i];
+        if (input.name.indexOf('symbol-') === 0) {
+            symbols.push(input.name[7]);
+        }
+    }
+    return symbols;
+}
+
+function byTagName (context, tagName) {
+    var nodeList = context.getElementsByTagName(tagName);
+    return Array.prototype.slice.call(nodeList);
 }
