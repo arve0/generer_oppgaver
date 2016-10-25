@@ -15,9 +15,17 @@ function getState () {
     storedState = JSON.parse(stateStr);
   } catch (err) {}
   if (storedState) {
-      settings.formula.value = storedState.inputs.formula;
+      restoreState(storedState);
   }
   return storedState || {};
+}
+
+function restoreState (state) {
+    settings.rows.value = state.inputs.rows;
+    settings.cols.value = state.inputs.cols;
+    settings.padding.value = state.inputs.padding;
+    settings.border.checked = state.inputs.border;
+    settings.formula.value = state.inputs.formula;
 }
 
 update();
@@ -47,7 +55,11 @@ function updateInputState (form) {
     var inputs = form.getElementsByTagName('input');
     for (var i = 0; i < inputs.length; i += 1) {
         var input = inputs[i];
-        state.inputs[input.name] = input.value;
+        if (input.type === 'checkbox') {
+            state.inputs[input.name] = input.checked;
+        } else {
+            state.inputs[input.name] = input.value;
+        }
     }
 }
 
